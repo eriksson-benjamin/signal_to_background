@@ -80,7 +80,7 @@ def plot_for_paper(shot_number):
     suffixes = ['NoKinCut', 'KinCut']
     for i, ax in enumerate(axes.flatten()):
         # Import data
-        file = f'../data/{shot_number}/{shot_number}_{suffixes[i]}.pickle'
+        file = f'data/{shot_number}/{shot_number}_{suffixes[i]}.pickle'
         bins, counts, bgr_level = import_data(file)
         
         # Fit Gaussian to DT peak
@@ -124,7 +124,7 @@ def plot_for_paper(shot_number):
 def main(shot_number, suffix):
     """Run analysis for one input."""
     # Import data
-    file = f'../data/{shot_number}/{shot_number}_{suffix}.pickle'
+    file = f'data/{shot_number}/{shot_number}_{suffix}.pickle'
     bins, counts, bgr_level = import_data(file)
     
     # Plot data
