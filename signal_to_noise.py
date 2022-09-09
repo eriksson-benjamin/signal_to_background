@@ -117,6 +117,8 @@ def plot_for_paper(shot_number):
     axes[1].set_xlim(10, 45)
     axes[1].set_ylim(-15, 200)
     axes[0].legend(loc='upper right')
+    axes[0].text(0.05, 0.9, '(a)', transform=axes[0].transAxes)
+    axes[1].text(0.05, 0.9, '(b)', transform=axes[1].transAxes)
     
     fig.set_size_inches(4, 7)
     plt.subplots_adjust(hspace=0.05)
