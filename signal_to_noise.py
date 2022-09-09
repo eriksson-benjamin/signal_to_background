@@ -7,6 +7,8 @@ Created on Wed Sep  7 10:24:11 2022
 """
 
 import numpy as np
+import sys
+sys.path.insert(0, 'C:/python/useful_definitions/')
 import useful_defs as udfs
 import matplotlib.pyplot as plt
 udfs.set_nes_plot_style()
@@ -20,9 +22,9 @@ def import_data(file):
     return p['bins'], p['counts'], bgr_level
 
 
-def plot_data(bins, counts, bgr_level, shot_number):
+def plot_data(bins, counts, bgr_level, title):
     """Plot data."""
-    plt.figure(shot_number)
+    plt.figure(title)
     plt.plot(bins, counts, 'k.')
     plt.errorbar(bins, counts, yerr=np.sqrt(counts), color='k',
                  linestyle='None')
@@ -48,9 +50,9 @@ def fit_function(parameters, bins, counts, bgr_level, fit_range):
     return chi2
 
 
-def plot_gaussian(parameters, bins, counts, bgr_level, shot_number):
+def plot_gaussian(parameters, bins, counts, bgr_level, title):
     """Plot Gaussian and total fit on data."""
-    plt.figure(shot_number)
+    plt.figure(title)
     gauss = gaussian(*parameters, bins, 0)
     total = gaussian(*parameters, bins, bgr_level)
     plt.plot(bins, gauss, 'k-.', label='gaussian fit')
@@ -90,9 +92,6 @@ def plot_for_paper(shot_number):
         popt = sp.optimize.minimize(fit_function, initial_guess,
                                     args=(bins, counts, bgr_level, fit_range))
 
-        # Calculate signal to noise ratio
-        print(signal_to_noise(popt.x, bins, counts, bgr_level))
-
         # Plot data
         ax.plot(bins, counts, 'k.', markersize=3)
         ax.errorbar(bins, counts, yerr=np.sqrt(counts), linestyle='None',
@@ -130,22 +129,30 @@ def main(shot_number, suffix):
     bins, counts, bgr_level = import_data(file)
 
     # Plot data
-    plot_data(bins, counts, bgr_level, shot_number)
+    plot_data(bins, counts, bgr_level, suffix)
 
     # Fit Gaussian to DT peak
     initial_guess = (100, 26, 1)
     fit_range = (15, 35)
+
     popt = sp.optimize.minimize(fit_function, initial_guess,
                                 args=(bins, counts, bgr_level, fit_range))
 
     # Plot
-    plot_gaussian(popt.x, bins, counts, bgr_level, shot_number)
+    plot_gaussian(popt.x, bins, counts, bgr_level, suffix)
 
     # Calculate signal to noise ratio
-    print(signal_to_noise(popt.x, bins, counts, bgr_level))
+    sb = signal_to_noise(popt.x, bins, counts, bgr_level)
+
+    return sb
 
 
 if __name__ == '__main__':
     shot_number = 100850
-    main(shot_number, 'KinCut')
+    sb_a = main(shot_number, 'KinCut')
+    sb_b = main(shot_number, 'NoKinCut')
+
+    print(f'S/B (a): {sb_a:.3f}')
+    print(f'S/B (b): {sb_b:.3f}')
+    print(f'Improvement: {sb_a/sb_b:.3f}')
     plot_for_paper(shot_number)
