@@ -7,7 +7,6 @@ Created on Mon Sep  5 13:21:43 2022
 """
 
 
-
 '''
 Fit NBI/TH/back scatter to DD and DT peak
 '''
@@ -41,12 +40,12 @@ def load(file_name, name=None, shot=None, t0=None, t1=None, drf=''):
 
     # Load response function
     r = load_response_function(drf)
-    
+
     if name is None:
         name = file_name
 
     nes_data = nes.Data(data, name=name, response=r,
-                        back=d['bgr_level'], 
+                        back=d['bgr_level'],
                         x_label='$t_{TOF}$ (ns)', y_label='counts/bin')
 
     # JET specific attributes
@@ -85,7 +84,7 @@ elif setting == 2:
 elif setting == 3:
     drf = f'/home/beriksso/NES/drf/tofu_drf_kin{suffix}.json'
     file_name = f'data/{shot}/{shot}_scaled_kin.pickle'
-    
+
 else:
     raise ValueError(f'Invalid setting: {setting}')
 
@@ -129,9 +128,9 @@ dd_scalc.u1 = [0, 0, 1]
 dt_scalc.u1 = [0, 0, 1]
 
 # Set reactant velocity distributions
-dd_scalc.reactant_a.sample_E_dist(fp.E, fp.dNdE, pitch_range=[0.5,0.7])
+dd_scalc.reactant_a.sample_E_dist(fp.E, fp.dNdE, pitch_range=[0.5, 0.7])
 dd_scalc.reactant_b.sample_maxwellian_dist(Te)
-dt_scalc.reactant_a.sample_E_dist(E, D, pitch_range=[0.5,0.7])
+dt_scalc.reactant_a.sample_E_dist(E, D, pitch_range=[0.5, 0.7])
 dt_scalc.reactant_b.sample_maxwellian_dist(Te)
 
 bt_dd, En_dd = dd_scalc(bin_width=50.0)
@@ -174,7 +173,7 @@ tofor.fit()
 
 I_bt_dt0 = bt_dt_comp.N.value
 I_bt_dd0 = bt_dd_comp.N.value
-nt_over_nd0 = (sigmav_bt_dd/sigmav_bt_dt) * (I_bt_dt0/I_bt_dd0)
+nt_over_nd0 = (sigmav_bt_dd / sigmav_bt_dt) * (I_bt_dt0 / I_bt_dd0)
 
 
 to_save = {}
@@ -182,9 +181,9 @@ to_save['I_bt_dt'] = I_bt_dt0
 to_save['I_bt_dd'] = I_bt_dd0
 to_save['figure'] = tofor.fit.datafig
 to_save['time_range'] = [t0, t1]
-to_save['n_spectrum'] = {'bt_dt':[bt_dt_comp.En, bt_dt_comp.spectrum],
-                         'bt_dd':[bt_dd_comp.En, bt_dd_comp.spectrum],
-                         'th_dd':[tofor.thermal.En, tofor.thermal.spectrum],
-                         'scatter':[tofor.scatter.En, tofor.scatter.spectrum]}
+to_save['n_spectrum'] = {'bt_dt': [bt_dt_comp.En, bt_dt_comp.spectrum],
+                         'bt_dd': [bt_dd_comp.En, bt_dd_comp.spectrum],
+                         'th_dd': [tofor.thermal.En, tofor.thermal.spectrum],
+                         'scatter': [tofor.scatter.En, tofor.scatter.spectrum]}
 
 udfs.pickler(f'{shot}_{setting}.pickle', to_save, check=True)
