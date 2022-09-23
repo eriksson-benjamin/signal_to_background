@@ -169,6 +169,76 @@ def plot_for_paper_dd(shot_number):
     plt.subplots_adjust(hspace=0.05)
 
 
+def plot_for_paper(shot_number):
+    """Create plot for technical TOFu paper."""
+    fig, axes = plt.subplots(3, 1)
+    
+    suffixes = ['NoKinCut', 'KinCut']
+    
+    
+    # Plot full TOF spectrum
+    file = f'data/{shot_number}/{shot_number}_{suffixes[0]}.pickle'
+    bins, counts, bgr_level = import_data(file)
+    
+    axes[0].plot(bins, counts, 'k.', markersize=1)
+    axes[0].errorbar(bins, counts, yerr=np.sqrt(counts), linestyle='None', 
+                     color='k')
+    
+    
+    for i, ax in enumerate(axes[1:]):
+        # Import data
+        file = f'data/{shot_number}/{shot_number}_{suffixes[i]}.pickle'
+        bins, counts, bgr_level = import_data(file)
+
+        # Fit Gaussian to DT peak
+        initial_guess = (100, 26, 1)
+        fit_range = (15, 35)
+
+        popt = sp.optimize.minimize(fit_function, initial_guess,
+                                    args=(bins, counts, bgr_level, fit_range))
+
+        # Plot data
+        ax.plot(bins, counts, 'k.', markersize=3)
+        ax.errorbar(bins, counts, yerr=np.sqrt(counts), linestyle='None',
+                    color='k')
+
+        # Plot total fit
+        gauss = gaussian(*popt.x, bins, 0)
+        ax.plot(bins, gauss + bgr_level, 'r-', label='total')
+
+        # Plot background
+        ax.plot(bins, bgr_level, 'C0--', label='background')
+
+        # Plot Gaussian fit
+        ax.plot(bins, gauss, 'C1-.', label='Gaussian fit')
+
+        ax.set_ylabel('counts')
+
+    # Labels
+    axes[2].set_xlabel('$t_{TOF}$ (ns)')
+    axes[1].legend(loc='upper right')
+    
+    # Limits
+    axes[0].set_yscale('log')
+    axes[0].set_ylim(100, 4000)
+    axes[1].set_ylim(-15, 350)
+    axes[2].set_ylim(-15, 200)
+    axes[0].set_xlim(10, 90)
+    axes[1].set_xlim(10, 45)
+    axes[2].set_xlim(10, 45)
+    
+    # Letters    
+    axes[0].text(0.03, 0.9, '(a)', transform=axes[0].transAxes)
+    axes[1].text(0.03, 0.9, '(b)', transform=axes[1].transAxes)
+    axes[2].text(0.03, 0.9, '(c)', transform=axes[2].transAxes)
+    
+    # Lines
+    axes[0].axvline(20, color='k', linestyle='dotted')
+    axes[0].axvline(33, color='k', linestyle='dotted')
+    
+    fig.set_size_inches(4, 10)
+    plt.subplots_adjust(hspace=0.15)
+
 def main(shot_number, suffix):
     """Run analysis for one input."""
     # Import data
@@ -179,9 +249,11 @@ def main(shot_number, suffix):
     plot_data(bins, counts, bgr_level, suffix)
 
     # Fit Gaussian to DT peak
-    initial_guess = (100, 63.4, 1)
+    initial_guess = (100, 26.4, 1)
     fit_range = (15, 35)
-    fit_range = (57, 71)
+    
+#    initial_guess = (100, 63.4, 1)
+#    fit_range = (57, 71)
 
     popt = sp.optimize.minimize(fit_function, initial_guess,
                                 args=(bins, counts, bgr_level, fit_range))
@@ -197,7 +269,7 @@ def main(shot_number, suffix):
 
 if __name__ == '__main__':
     shot_number = 100850
-    shot_number = 98044
+#    shot_number = 99552
     sb_a = main(shot_number, 'KinCut')
     sb_b = main(shot_number, 'NoKinCut')
 
@@ -206,3 +278,4 @@ if __name__ == '__main__':
     print(f'Improvement: {sb_a/sb_b:.3f}')
     plot_for_paper_dt(shot_number)
     plot_for_paper_dd(shot_number)
+    plot_for_paper(shot_number)

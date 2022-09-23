@@ -185,5 +185,10 @@ to_save['n_spectrum'] = {'bt_dt': [bt_dt_comp.En, bt_dt_comp.spectrum],
                          'bt_dd': [bt_dd_comp.En, bt_dd_comp.spectrum],
                          'th_dd': [tofor.thermal.En, tofor.thermal.spectrum],
                          'scatter': [tofor.scatter.En, tofor.scatter.spectrum]}
+to_save['tof_spectrum'] = {'bt_dt': [tofor.fit.comp_data['NBI (DT)']],
+                           'bt_dd': [tofor.fit.comp_data['NBI (DD)']],
+                           'th_dd': [tofor.fit.comp_data['TH (DD)']], 
+                           'scatter': [tofor.fit.comp_data['scatter']],
+                           'tof_axis': [data.response.to_axis]}
 
 udfs.pickler(f'{shot}_{setting}.pickle', to_save, check=True)
